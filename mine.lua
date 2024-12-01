@@ -3,11 +3,17 @@
 --[[
 Place the Turtle on top of a chest, place a bucket in Slot 15, and fuel in Slot 16.
 Place any items to ignore into slots 1-8.
-Run the program with numbers for x and y of max size, or leave blank to just run forever.
+Create a startup.lau file to start this without args on startup.
+Run the program with -n flag for new instance.
 The Turtle will branch mine at its current z level, and mine down shafts until it hits bedrock.
 When the program sees anything not on the ignore list, it will mine it out.
 The Turtle will Return to the chest when low on fuel, or full inventory.
 The Turtle will empty slots 1-14 into the chest, and refuel if possible.
+
+Uses a serialized file in /data/ to save the following info
+current state [main, branch, hunt, return]
+current x and y
+current ignore list
 ]]
 
 -- Helper Functions
@@ -18,35 +24,41 @@ local function print( text )
 	file.close()
 end
 
+local function init()
+    --ignore blocks check
+    for i = 1, 14 do
+        if turtle.getItemCount( i ) == 0 then
+            nSlots = i - 1
+            print( "You have "..nSlots.." stacks of waster blocks, is this correct? Y/N" )
+            while true do
+                local _, char = os.pullEvent( "char" )
+                if car:lower() == 'n' then
+                    error()
+                elseif char:lower() == 'y' then
+                    break
+                end
+            end
+            break
+        end
+    end
+    -- bucket check
+    if turtle.getItemCount( 15 ) ~= 1 then
+        error( "Place a single bucket in slot 15" )
+    end
+    -- Fuel check
+    if turtle.getItemCount( 16 ) == 0 then
+        error( "No fuel in slot 16")
+    end
+end
+
 
 --initialization
 local ok, sArgs, nSlots, oldPrint = true, { ... }, nil, print
 
---ignore check
-for i = 1, 14 do
-    if turtle.getItemCount( i ) == 0 then
-        nSlots = i - 1
-        print( "You have "..nSlots.." stacks of waster blocks, is this correct? Y/N" )
-        while true do
-            local _, char = os.pullEvent( "char" )
-            if car:lower() == 'n' then
-                error()
-            elseif char:lower() == 'y' then
-                break
-            end
-        end
-        break
-    end
+-- check for arguments
+if sArgs then
+    init()
 end
--- bucket check
-if turtle.getItemCount( 15 ) ~= 1 then
-    error( "Place a single bucket in slot 15" )
-end
--- Fuel check
-if turtle.getItemCount( 16 ) == 0 then
-    error( "No fuel in slot 16")
-end
-
 
 
 --[[
