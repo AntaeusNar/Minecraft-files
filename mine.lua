@@ -1,5 +1,26 @@
 -- Forked from KingofGamesYami.  Found at https://forums.computercraft.cc/index.php?topic=36.0 and https://pastebin.com/raw/ZpKSLTgW
 
+
+--[[
+    Place the Turtle on the z level you want to start at, then place a chest behind it.
+    Start the program!
+]]
+
+--logging function
+function log(text)
+    text = '[' .. os.time() .. ']' .. text
+    print(text)
+    if not fs.exists('/logs') then
+        fs.makeDir('/logs')
+    end
+    local file = fs.open('/logs/eventLog', 'a')
+    file.writeLine(text)
+    file.close()
+end
+
+--Initialization:
+
+
 --[[
 Place the Turtle on top of a chest, place a bucket in Slot 15, and fuel in Slot 16.
 Place any items to ignore into slots 1-8.
@@ -17,14 +38,8 @@ current ignore list
 ]]
 
 -- Helper Functions
-local function print( text )
-	oldPrint( "[" .. os.time() .. "]" .. text )
-	local file = fs.open( "turtleLog", "a" )
-	file.writeLine( "[" .. os.time() .. "]" .. text )
-	file.close()
-end
 
-local function init()
+function init()
     --ignore blocks check
     for i = 1, 14 do
         if turtle.getItemCount( i ) == 0 then
@@ -70,7 +85,7 @@ function unserialize(name)
 end
 
 --initialization
-local ok, sArgs, nSlots, oldPrint = true, { ... }, nil, print
+local ok, sArgs, nSlots, oldPrint, saveFile = true, { ... }, nil, print, 'state'
 
 -- check for arguments to start new or load from save file
 if sArgs then
