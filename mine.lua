@@ -1,53 +1,59 @@
 -- Forked from KingofGamesYami.  Found at https://forums.computercraft.cc/index.php?topic=36.0 and https://pastebin.com/raw/ZpKSLTgW
 
 --[[
-Slot 1: Stone
-Slot 2: Dirt
-Slot 3: Sand
-Slot 4: Gravel
-Slot 15: Bucket
-Slot 16: Fuel
-]]--
+Place the Turtle on top of a chest, place a bucket in Slot 15, and fuel in Slot 16.
+Place any items to ignore into slots 1-8.
+Run the program with numbers for x and y of max size, or leave blank to just run forever.
+The Turtle will branch mine at its current z level, and mine down shafts until it hits bedrock.
+When the program sees anything not on the ignore list, it will mine it out.
+The Turtle will Return to the chest when low on fuel, or full inventory.
+The Turtle will empty slots 1-14 into the chest, and refuel if possible.
+]]
 
-local ok, tArgs, ignoredFuel, oldprint, fuelAmount, nSlots = true, { ... }, 0, print, nil
-
-for i = 1, 13 do
-	if turtle.getItemCount( i ) == 0 then
-		nSlots = i - 1
-		print( "You have "..nSlots.." stacks of waste blocks, is this correct? Y/N" )
-		while true do
-			local _, char = os.pullEvent( "char" )
-			if char:lower() == "n" then
-				error()
-			elseif char:lower() == "y" then
-				break
-			end
-		end
-		break
-	end
-end
-
-if turtle.getItemCount( 15 ) ~= 1 then
-	error( "Place a single bucket in slot 15" )
-end
-if turtle.getItemCount( 16 ) == 0 then
-	print( "Are you sure you wish to continue with no fuel in slot 16? Y/N" )
-	while true do
-		local _, char = os.pullEvent( "char" )
-		if char:lower() == "n" then
-			error()
-		elseif char:lower() == "y" then
-			break
-		end
-	end
-end
-
+-- Helper Functions
 local function print( text )
-	oldprint( "[" .. os.time() .. "]" .. text )
+	oldPrint( "[" .. os.time() .. "]" .. text )
 	local file = fs.open( "turtleLog", "a" )
 	file.writeLine( "[" .. os.time() .. "]" .. text )
 	file.close()
 end
+
+
+--initialization
+local ok, sArgs, nSlots, oldPrint = true, { ... }, nil, print
+
+--ignore check
+for i = 1, 14 do
+    if turtle.getItemCount( i ) == 0 then
+        nSlots = i - 1
+        print( "You have "..nSlots.." stacks of waster blocks, is this correct? Y/N" )
+        while true do
+            local _, char = os.pullEvent( "char" )
+            if car:lower() == 'n' then
+                error()
+            elseif char:lower() == 'y' then
+                break
+            end
+        end
+        break
+    end
+end
+-- bucket check
+if turtle.getItemCount( 15 ) ~= 1 then
+    error( "Place a single bucket in slot 15" )
+end
+-- Fuel check
+if turtle.getItemCount( 16 ) == 0 then
+    error( "No fuel in slot 16")
+end
+
+
+
+--[[
+Original
+]]
+
+
 
 function dumpWaste()
 	while ok do
