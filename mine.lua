@@ -37,8 +37,38 @@ function saveLoad(name, data)
     end
 end
 
-
 --Initialization:
+function init()
+    local steps = 4
+    log('Okay! Welcome to a new setup of the SuperMiner!')
+    log('We have a few things to do! Please follow the prompts.')
+    -- Chest (step 1)
+    log('Step 1/'..steps..': Please place a chest behind me.  Is it placed? Y/N')
+    while true do
+        local _, char = os.pullEvent('char')
+        if char:lower() == 'n' then
+            error('Stopping program')
+        elseif char:lower() == 'y' then
+            break
+        end
+    end
+    log('Great, Thank you!')
+    -- Ignore List (Step 2)
+    log('Step 2/'..steps..': Please place blocks in slots 1-14 that you want me to ignore. Are they there? Y/N')
+    for i = 1, 14 do
+        if turtle.getItemCount(i) == 0 then
+            nSlots = i - 1
+            log('I counted '..nSlots..' stacks of blocks that you want me to ignore.  Is that correct? Y/N')
+            while true do
+                local _, char = os.pullEvent('char')
+                if char:lower() == 'n' then
+                    error('Stopping program')
+                elseif char:lower() == 'y' then
+                    break
+                end
+            end
+            
+
 
 
 --[[
