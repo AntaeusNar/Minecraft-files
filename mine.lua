@@ -18,6 +18,26 @@ function log(text)
     file.close()
 end
 
+--file save/load function
+function saveLoad(name, data)
+    if data then
+        if not fs.exists('/data') then
+            fs.makeDir('/data')
+        end
+        local f = fs.open('/data/'..name, 'w')
+        f.write(textutils.serialize(date))
+        f.close()
+    else
+        if fs.exists('/data/'..name) then
+            local f = fs.open('/data/'..name, 'r')
+            date = textutils.unserialize(f.readAll())
+            f.close()
+            return data
+        end
+    end
+end
+
+
 --Initialization:
 
 
@@ -64,24 +84,6 @@ function init()
     if turtle.getItemCount( 16 ) == 0 then
         error( "No fuel in slot 16")
     end
-end
-
-function serialize(data, name)
-    if not fs.exists('/data') then
-        fs.makeDir('/data')
-    end
-    local f = fs.open('/data/'..name, 'w')
-    f.write(textutils.serialize(data))
-    f.close()
-end
-
-function unserialize(name)
-    if fs.exists('/data/'..name) then
-        local f = fs.open('/data/'..name, 'r')
-        data = textutils.unserialize(f.readAll())
-        f.close()
-    end
-    return data
 end
 
 --initialization
