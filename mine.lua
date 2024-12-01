@@ -51,13 +51,32 @@ local function init()
     end
 end
 
+function serialize(data, name)
+    if not fs.exists('/data') then
+        fs.makeDir('/data')
+    end
+    local f = fs.open('/data/'..name, 'w')
+    f.write(textutils.serialize(data))
+    f.close()
+end
+
+function unserialize(name)
+    if fs.exists('/data/'..name) then
+        local f = fs.open('/data/'..name, 'r')
+        data = textutils.unserialize(f.readAll())
+        f.close()
+    end
+    return data
+end
 
 --initialization
 local ok, sArgs, nSlots, oldPrint = true, { ... }, nil, print
 
--- check for arguments
+-- check for arguments to start new or load from save file
 if sArgs then
     init()
+else
+
 end
 
 
