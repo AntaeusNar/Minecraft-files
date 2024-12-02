@@ -1,3 +1,5 @@
+-- Author Lvl1Slime https://pastebin.com/raw/bkL6gaRv
+
 -- get user input for parameters
  
 print("Quarry length: ")
