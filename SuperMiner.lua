@@ -7,7 +7,7 @@
     Start the program!
 ]]
 
---constants
+-- Setup the variables and constants
 local save_file_name, save_data = 'saveFile.json', nil
 local default_ignore_dict = {
     --Default Ignored Types: most of these have subtypes ie minecraft:stone (Stone) vs minecraft:stone:1 (Granite)
