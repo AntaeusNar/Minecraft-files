@@ -1,196 +1,53 @@
--- Forked from KingofGamesYami.  Found at https://forums.computercraft.cc/index.php?topic=36.0 and https://pastebin.com/raw/ZpKSLTgW
-
-
---[[
-    Place the Turtle on the z level you want to start at, then place a chest behind it.
-    Start the program!
-]]
-
---constants
-local save_file_name, save_data = 'saveFile.json', nil
-local default_ignore_dict = {
-    --Default Ignored Types: most of these have subtypes ie minecraft:stone (Stone) vs minecraft:stone:1 (Granite)
-    --So when checking we need to allow for turtle.inspect().name to match the beginning so that minecraft:stone and minecraft:stone:1 equal each other.
-    ['minecraft:stone'] = true,
-    ['minecraft:dirt'] = true,
-    ['minecraft:cobblestone'] = true,
-    ['minecraft:planks'] = true,
-    ['minecraft:sand'] = true,
-    ['minecraft:gravel'] = true,
-    ['minecraft:log'] = true,
-    ['minecraft:leaves'] = true,
-    ['minecraft:sandstone'] = true,
-    ['minecraft:netherrack'] = true,
-    ['minecraft:soul_sand'] = true,
-    ['minecraft:mycelium'] = true,
-    ['minecraft:farmland'] = true,
-    ['minecraft:grass'] = true,
-}
-
---logging function
-function log(text)
-    text = '[' .. os.time() .. ']' .. text
-    print(text)
-    if not fs.exists('/logs') then
-        fs.makeDir('/logs')
-    end
-    local file = fs.open('/logs/eventLog', 'a')
-    file.writeLine(text)
-    file.close()
-end
-
---file save/load function
-function saveLoad(name, data)
-    if data then
-        if not fs.exists('/data') then
-            fs.makeDir('/data')
-        end
-        local f = fs.open('/data/'..name, 'w')
-        f.write(textutils.serialize(date))
-        f.close()
-    else
-        if fs.exists('/data/'..name) then
-            local f = fs.open('/data/'..name, 'r')
-            date = textutils.unserialize(f.readAll())
-            f.close()
-            return data
-        end
-    end
-end
-
---wait for matching input
-function waitForInput(...)
-    local arg = {...}
-    while true do
-        local _, char = os.pullEvent('char')
-        for i,v in ipairs(arg) do
-            if char:lower() == v:lower() then
-                return v
-            end
-        end
-    end
-end
-
---Initialization:
-function init()
-    save_data = nil
-    --check for save
-    save_data = saveLoad(save_file_name)
-    if not save_data then
-        save_data = newStart()
-    end
-    return save_data
-end
-
-function newStart()
-    local response = nil
-    local steps = 4
-    log('Welcome to the setup for the SuperMiner!')
-    log('Please follow the instructions.')
-    -- Chest placement
-    log('Step 1/'..steps..': Please ensure there is a chest behind me.  Once there confirm with Y. Y/N?')
-    response = waitForInput('y','n')
-    if response:lower() == 'n' then
-        error('Please place a chest behind me and restart.')
-    end
-    log('Great thanks!')
-    -- Ignore list
-
-
-function init()
-    local steps = 4
-    log('Okay! Welcome to a new setup of the SuperMiner!')
-    log('We have a few things to do! Please follow the prompts.')
-    -- Chest (step 1)
-    log('Step 1/'..steps..': Please place a chest behind me.  Is it placed? Y/N')
-    while true do
-        local _, char = os.pullEvent('char')
-        if char:lower() == 'n' then
-            error('Stopping program')
-        elseif char:lower() == 'y' then
-            break
-        end
-    end
-    log('Great, Thank you!')
-    -- Ignore List (Step 2)
-    log('Step 2/'..steps..': Please place blocks in slots 1-14 that you want me to ignore. Are they there? Y/N')
-    for i = 1, 14 do
-        if turtle.getItemCount(i) == 0 then
-            nSlots = i - 1
-            log('I counted '..nSlots..' stacks of blocks that you want me to ignore.  Is that correct? Y/N')
-            while true do
-                local _, char = os.pullEvent('char')
-                if char:lower() == 'n' then
-                    error('Stopping program')
-                elseif char:lower() == 'y' then
-                    break
-                end
-            end
-            
-
-
+-- Original from KingofGamesYami.  Found at https://forums.computercraft.cc/index.php?topic=36.0 and https://pastebin.com/raw/ZpKSLTgW
 
 --[[
-Place the Turtle on top of a chest, place a bucket in Slot 15, and fuel in Slot 16.
-Place any items to ignore into slots 1-8.
-Create a startup.lau file to start this without args on startup.
-Run the program with -n flag for new instance.
-The Turtle will branch mine at its current z level, and mine down shafts until it hits bedrock.
-When the program sees anything not on the ignore list, it will mine it out.
-The Turtle will Return to the chest when low on fuel, or full inventory.
-The Turtle will empty slots 1-14 into the chest, and refuel if possible.
+Slot 1: Stone
+Slot 2: Dirt
+Slot 3: Sand
+Slot 4: Gravel
+Slot 15: Bucket
+Slot 16: Fuel
+]]--
 
-Uses a serialized file in /data/ to save the following info
-current state [main, branch, hunt, return]
-current x and y
-current ignore list
-]]
+local ok, tArgs, ignoredFuel, oldprint, fuelAmount, nSlots = true, { ... }, 0, print, nil
 
--- Helper Functions
-
-function init()
-    --ignore blocks check
-    for i = 1, 14 do
-        if turtle.getItemCount( i ) == 0 then
-            nSlots = i - 1
-            print( "You have "..nSlots.." stacks of waster blocks, is this correct? Y/N" )
-            while true do
-                local _, char = os.pullEvent( "char" )
-                if car:lower() == 'n' then
-                    error()
-                elseif char:lower() == 'y' then
-                    break
-                end
-            end
-            break
-        end
-    end
-    -- bucket check
-    if turtle.getItemCount( 15 ) ~= 1 then
-        error( "Place a single bucket in slot 15" )
-    end
-    -- Fuel check
-    if turtle.getItemCount( 16 ) == 0 then
-        error( "No fuel in slot 16")
-    end
+for i = 1, 13 do
+	if turtle.getItemCount( i ) == 0 then
+		nSlots = i - 1
+		print( "You have "..nSlots.." stacks of waste blocks, is this correct? Y/N" )
+		while true do
+			local _, char = os.pullEvent( "char" )
+			if char:lower() == "n" then
+				error()
+			elseif char:lower() == "y" then
+				break
+			end
+		end
+		break
+	end
 end
 
---initialization
-local ok, sArgs, nSlots, oldPrint, saveFile = true, { ... }, nil, print, 'state'
-
--- check for arguments to start new or load from save file
-if sArgs then
-    init()
-else
-
+if turtle.getItemCount( 15 ) ~= 1 then
+	error( "Place a single bucket in slot 15" )
+end
+if turtle.getItemCount( 16 ) == 0 then
+	print( "Are you sure you wish to continue with no fuel in slot 16? Y/N" )
+	while true do
+		local _, char = os.pullEvent( "char" )
+		if char:lower() == "n" then
+			error()
+		elseif char:lower() == "y" then
+			break
+		end
+	end
 end
 
-
---[[
-Original
-]]
-
-
+local function print( text )
+	oldprint( "[" .. os.time() .. "]" .. text )
+	local file = fs.open( "turtleLog", "a" )
+	file.writeLine( "[" .. os.time() .. "]" .. text )
+	file.close()
+end
 
 function dumpWaste()
 	while ok do
