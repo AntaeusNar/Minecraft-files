@@ -6,6 +6,27 @@
     Start the program!
 ]]
 
+--constants
+local save_file_name, save_data = 'saveFile.json', nil
+local default_ignore_dict = {
+    --Default Ignored Types: most of these have subtypes ie minecraft:stone (Stone) vs minecraft:stone:1 (Granite)
+    --So when checking we need to allow for turtle.inspect().name to match the beginning so that minecraft:stone and minecraft:stone:1 equal each other.
+    ['minecraft:stone'] = true,
+    ['minecraft:dirt'] = true,
+    ['minecraft:cobblestone'] = true,
+    ['minecraft:planks'] = true,
+    ['minecraft:sand'] = true,
+    ['minecraft:gravel'] = true,
+    ['minecraft:log'] = true,
+    ['minecraft:leaves'] = true,
+    ['minecraft:sandstone'] = true,
+    ['minecraft:netherrack'] = true,
+    ['minecraft:soul_sand'] = true,
+    ['minecraft:mycelium'] = true,
+    ['minecraft:farmland'] = true,
+    ['minecraft:grass'] = true,
+}
+
 --logging function
 function log(text)
     text = '[' .. os.time() .. ']' .. text
@@ -37,7 +58,45 @@ function saveLoad(name, data)
     end
 end
 
+--wait for matching input
+function waitForInput(...)
+    local arg = {...}
+    while true do
+        local _, char = os.pullEvent('char')
+        for i,v in ipairs(arg) do
+            if char:lower() == v:lower() then
+                return v
+            end
+        end
+    end
+end
+
 --Initialization:
+function init()
+    save_data = nil
+    --check for save
+    save_data = saveLoad(save_file_name)
+    if not save_data then
+        save_data = newStart()
+    end
+    return save_data
+end
+
+function newStart()
+    local response = nil
+    local steps = 4
+    log('Welcome to the setup for the SuperMiner!')
+    log('Please follow the instructions.')
+    -- Chest placement
+    log('Step 1/'..steps..': Please ensure there is a chest behind me.  Once there confirm with Y. Y/N?')
+    response = waitForInput('y','n')
+    if response:lower() == 'n' then
+        error('Please place a chest behind me and restart.')
+    end
+    log('Great thanks!')
+    -- Ignore list
+
+
 function init()
     local steps = 4
     log('Okay! Welcome to a new setup of the SuperMiner!')
